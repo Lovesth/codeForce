@@ -1,78 +1,61 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
 int main()
 {
-    int t;
+    int t, n, q;
     cin >> t;
     while (t--)
     {
-        int n, q;
         cin >> n >> q;
-        vector<int> perm(n);
-        for (int i = 0; i < n; i++)
-            cin >> perm[i];
-        for (int i = 0; i < n; i++)
-            perm[i]--;
-        vector<int> invperm(n);
-        for (int i = 0; i < n; i++)
-            invperm[perm[i]] = i;
-        vector<int> diffArr(n);
-        for (int i = 0; i < n; i++)
-        {
-            diffArr[min(i, invperm[i])]++;
-            diffArr[max(i, invperm[i])]--;
-        }
-        for (int i = 1; i < n; i++)
-            diffArr[i] += diffArr[i - 1];
+        vector<int> nums(n + 1);
+        vector<int> rec(n + 1);
+        int queries;
         string s;
-        cin >> s;
-        set<int> problems;
-        for (int i = 0; i < n - 1; i++)
+        for (int i = 1; i <= n; i++)
         {
-            if (s[i] == 'L' && s[i + 1] == 'R' && diffArr[i] != 0)
-            {
-                problems.insert(i);
-            }
+            cin >> nums[i];
+            rec[min(i, nums[i])]++;
+            rec[max(i, nums[i])]--;
         }
-        while (q--)
+        partial_sum(rec.begin() + 1, rec.end(), rec.begin() + 1);
+        unordered_set<int> us;
+        cin >> s;
+        s.insert(s.begin(), ' ');
+        for (int i = 1; i < n; i++)
         {
-            int x;
-            cin >> x;
-            x--;
-            if (s[x] == 'L')
+            if (rec[i] && s[i] == 'L' && s[i + 1] == 'R')
+                us.insert(i);
+        }
+        for (int i = 1; i <= q; i++)
+        {
+            cin >> queries;
+            if (s[queries] == 'R')
             {
-                s[x] = 'R';
+                s[queries] = 'L';
             }
             else
             {
-                s[x] = 'L';
+                s[queries] = 'R';
             }
-            if (s[x - 1] == 'L' && s[x] == 'R' && diffArr[x - 1] != 0)
+            if (queries > 1 && rec[queries - 1])
             {
-                problems.insert(x - 1);
+                if (s[queries - 1] == 'L' && s[queries] == 'R')
+                    us.insert(queries - 1);
+                else
+                    us.erase(queries - 1);
             }
-            else
+            if (queries < n && rec[queries])
             {
-                problems.erase(x - 1);
+                if (s[queries] == 'L' && s[queries + 1] == 'R')
+                    us.insert(queries);
+                else
+                    us.erase(queries);
             }
-            if (s[x] == 'L' && s[x + 1] == 'R' && diffArr[x] != 0)
-            {
-                problems.insert(x);
-            }
-            else
-            {
-                problems.erase(x);
-            }
-            if (problems.size())
-            {
-                cout << "NO" << endl;
-            }
-            else
-            {
+            if (us.empty())
                 cout << "YES" << endl;
-            }
+            else
+                cout << "NO" << endl;
         }
     }
 }
