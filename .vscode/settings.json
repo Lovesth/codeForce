@@ -93,6 +93,9 @@
         "syncstream": "cpp",
         "system_error": "cpp",
         "text_encoding": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "*.ipp": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp"
     }
 }
