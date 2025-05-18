@@ -1,90 +1,83 @@
 #include <bits/stdc++.h>
-
-#define pb push_back
-#define int long long
-#define F first
-#define S second
-#define sz(a) (int)a.size()
-#define pii pair<int, int>
-#define rep(i, a, b) for (int i = (a); i <= (b); i++)
-#define per(i, a, b) for (int i = (a); i >= (b); i--)
-#define all(a) a.begin(), a.end()
-
+#include <vector>
 using namespace std;
-const int maxn = 1e6 + 10;
-int a[maxn], n, fen[maxn];
+using ll = long long;
 
-void upd(int x) {
-  while (x <= n) {
-    fen[x]++;
-    x += x & -x;
-  }
-}
-
-int que(int x) {
-  int ans = 0;
-  while (x) {
-    ans += fen[x];
-    x -= x & -x;
-  }
-  return ans;
-}
-
-int f(vector<int> x) {
-  rep(i, 0, n) fen[i] = 0;
-  int ans = 0;
-  per(i, sz(x) - 1, 0) {
-    ans += que(x[i]);
-    upd(x[i]);
+struct FenwickTree {
+  vector<int> t{};
+  FenwickTree(int n) { t.resize(n + 1); }
+  void reset() {
+    for (int i = 0; i < t.size(); i++) {
+      t[i] = 0;
+    }
   }
 
-  return ans;
+  auto query(int k) {
+    ll res{0};
+    while (k > 0) {
+      res += t[k];
+      k -= k & -k;
+    }
+    return res;
+  }
+
+  void update(int k, int val) {
+    while (k < t.size()) {
+      t[k] += val;
+      k += k & -k;
+    }
+  }
+};
+
+ll f(vector<int> &nums, int n) {
+  FenwickTree FT(n);
+  ll res{0};
+
+  for (int i = nums.size() - 1; i >= 0; i--) {
+    res += FT.query(nums[i]);
+    FT.update(nums[i], 1);
+  }
+  return res;
 }
 
 int main() {
-  // ios::sync_with_stdio(0);
-  // cin.tie(0);
-
-  int T;
-  cin >> T;
-
-  while (T--) {
-    vector<int> a1, a2;
-
+  int t{};
+  int n{};
+  cin >> t;
+  while (t--) {
     cin >> n;
-    rep(i, 1, n) {
-      int x;
-      cin >> x;
-
-      if (i % 2 == 1) {
-        a1.pb(x);
+    int num{};
+    vector<int> oddNum{};
+    vector<int> evenNum{};
+    for (int i = 1; i <= n; i++) {
+      cin >> num;
+      if (i & 1) {
+        oddNum.push_back(num);
       } else {
-        a2.pb(x);
+        evenNum.push_back(num);
       }
     }
 
-    bool v = (f(a1) % 2 != f(a2) % 2);
+    int flag = (f(oddNum, n) % 2) != (f(evenNum, n) % 2);
 
-    sort(all(a1));
-    sort(all(a2));
-
-    int x1 = 0, x2 = 0;
-
-    rep(i, 1, n) {
-      if (i % 2 == 1) {
-        a[i] = a1[x1];
-        x1++;
+    sort(oddNum.begin(), oddNum.end());
+    sort(evenNum.begin(), evenNum.end());
+    vector<int> res{};
+    for (int i = 1; i <= n; i++) {
+      if (i & 1) {
+        res.push_back(oddNum[i / 2]);
       } else {
-        a[i] = a2[x2];
-        x2++;
+        res.push_back(evenNum[i / 2 - 1]);
       }
     }
 
-    if (v) {
-      swap(a[n], a[n - 2]);
+    if (flag) {
+      swap(res[res.size() - 1], res[res.size() - 3]);
     }
 
-    rep(i, 1, n) cout << a[i] << " ";
-    cout << "\n";
+    for (auto num : res) {
+      cout << num << " ";
+    }
+    cout << endl;
   }
 }
